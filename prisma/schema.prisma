@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PACKED
+  SHIPPED
+  DONE
+  CANCELED
+}
+
+enum VoucherType {
+  NEW_USER
+  LOYALTY_30
+  LOYALTY_50
+  ADMIN
+}
+
+enum FinanceType {
+  INCOME
+  EXPENSE
+}
+
+model User {
+  id                    String        @id @default(cuid())
+  name                  String?
+  email                 String        @unique
+  emailVerified         DateTime?
+  image                 String?
+  role                  Role          @default(USER)
+  passwordHash          String?       @db.Text
+  verificationTokenHash String?       @db.VarChar(64)
+  verificationExpiresAt DateTime?
+  resetTokenHash        String?       @db.VarChar(64)
+  resetExpiresAt        DateTime?
+  createdAt             DateTime      @default(now())
+  accounts              Account[]
+  sessions              Session[]
+  addresses             Address[]
+  orders                Order[]
+  vouchers              UserVoucher[]
+}
+
+model Account {
+  id String @id @default(cuid())
+  userId String
+  type String
+  provider String
+  providerAccountId String
+  refresh_token String? @db.Text
+  access_token String? @db.Text
+  expires_at Int?
+  token_type String?
+  scope String?
+  id_token String? @db.Text
+  session_state String?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id String @id @default(cuid())
+  sessionToken String @unique
+  userId String
+  expires DateTime
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token String @unique
+  expires DateTime
+  @@unique([identifier, token])
+}
+
+model Product {
+  id String @id @default(cuid())
+  name String
+  sku String @unique
+  price BigInt
+  discountPrice BigInt?
+  thumbnail String
+  gallery String @db.Text
+  shortDescription String
+  description String
+  weightGram Int
+  category String
+  stock Int
+  active Boolean @default(true)
+  tag String @default("new")
+  sizeRows SizeRow[]
+  orderItems OrderItem[]
+  voucherProducts VoucherProduct[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SizeRow {
+  id String @id @default(cuid())
+  productId String
+  size String
+  chestCm Int
+  lengthCm Int
+  shoulderCm Int
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  @@unique([productId, size])
+}
+
+model Address {
+  id String @id @default(cuid())
+  userId String
+  label String @default("Rumah")
+  isDefault Boolean @default(false)
+  recipient String
+  phone String
+  province String
+  city String
+  district String
+  village String
+  rt String
+  rw String
+  postalCode String
+  note String?
+  latitude Float?
+  longitude Float?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+  @@index([userId])
+}
+
+model Voucher {
+  id String @id @default(cuid())
+  code String @unique
+  type VoucherType
+  percent Int
+  startsAt DateTime @default(now())
+  expiresAt DateTime
+  usageQuota Int?
+  usedCount Int @default(0)
+  appliesToAll Boolean @default(true)
+  active Boolean @default(true)
+  products VoucherProduct[]
+  users UserVoucher[]
+}
+
+model VoucherProduct {
+  id String @id @default(cuid())
+  voucherId String
+  productId String
+  voucher Voucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  @@unique([voucherId, productId])
+}
+
+model UserVoucher {
+  id String @id @default(cuid())
+  userId String
+  voucherId String
+  usedAt DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  voucher Voucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  @@unique([userId, voucherId])
+}
+
+model Order {
+  id String @id @default(cuid())
+  userId String
+  addressId String
+  status OrderStatus @default(PENDING)
+  statusLabel String @default("Menunggu Pembayaran")
+  originalTotal BigInt
+  discountTotal BigInt
+  shippingTotal BigInt
+  grandTotal BigInt
+  buyerName String
+  buyerPhone String
+  buyerEmail String
+  buyerNote String? @db.Text
+  voucherCode String?
+  paymentMethod String? @default("QRIS_GOPAY")
+  paymentReference String? @unique
+  paymentStatus String?
+  paymentVerifiedAt DateTime?
+  stockCommittedAt DateTime?
+  paidAt DateTime?
+  completedAt DateTime?
+  courier String?
+  trackingNumber String?
+  adminNote String? @db.Text
+  notificationAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id])
+  address Address @relation(fields: [addressId], references: [id])
+  items OrderItem[]
+  financeEntries FinanceEntry[]
+  @@index([buyerEmail])
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+  orderId String
+  productId String
+  productName String
+  productSku String
+  thumbnail String @db.Text
+  size String
+  quantity Int
+  price BigInt
+  canceledQuantity Int @default(0)
+  refundedQuantity Int @default(0)
+  refundTotal BigInt @default(0)
+  refundStatus String?
+  canceledAt DateTime?
+  refundedAt DateTime?
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model FinanceEntry {
+  id String @id
+  orderId String
+  type FinanceType
+  categoryCode String
+  category String
+  description String @db.Text
+  amount BigInt
+  recordedAt DateTime
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  @@index([orderId])
+  @@index([recordedAt])
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "custom-1781070508684",
+    "name": "Price",
+    "sku": "khgyugoytoug",
+    "price": 5555555,
+    "discountPrice": 334534543534,
+    "thumbnail": "/uploads/1781070508659-khgyugoytoug.png",
+    "gallery": [
+      "/uploads/1781070508659-khgyugoytoug-back.png"
+    ],
+    "shortDescription": "reaertaert",
+    "description": "aert aert aeatat",
+    "weightGram": 53453453,
+    "category": "jgvjhhjv",
+    "stock": 23,
+    "active": true,
+    "tag": "popular",
+    "sizeTemplate": {
+      "S": {
+        "chest": 50,
+        "length": 68,
+        "shoulder": 43
+      },
+      "M": {
+        "chest": 53,
+        "length": 71,
+        "shoulder": 45
+      },
+      "L": {
+        "chest": 56,
+        "length": 74,
+        "shoulder": 47
+      },
+      "XL": {
+        "chest": 59,
+        "length": 77,
+        "shoulder": 49
+      },
+      "XXL": {
+        "chest": 62,
+        "length": 80,
+        "shoulder": 51
+      }
+    }
+  }
+]

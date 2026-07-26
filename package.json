@@ -1,0 +1,49 @@
+{
+  "name": "oneday-streetwear",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "dev:user": "NEXT_DIST_DIR=.next-user AUTH_URL=http://127.0.0.1:3001 NEXTAUTH_URL=http://127.0.0.1:3001 next dev --hostname 127.0.0.1 --port 3001",
+    "dev:admin": "NEXT_DIST_DIR=.next-admin AUTH_URL=http://localhost:3002 NEXTAUTH_URL=http://localhost:3002 next dev --hostname localhost --port 3002",
+    "start:all": "sh scripts/start-all.sh",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "deploy:package": "node scripts/create-deploy-package.mjs",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "db:prod:check": "node scripts/check-production-env.mjs",
+    "db:prod:push": "node scripts/check-production-env.mjs && prisma generate && prisma db push && node scripts/seed-admin.mjs && node scripts/seed-vouchers.mjs",
+    "db:seed:vouchers": "node scripts/seed-vouchers.mjs",
+    "db:backup": "node scripts/db-backup.mjs",
+    "db:restore": "node scripts/db-restore.mjs",
+    "db:install:arch": "sh scripts/setup-mariadb-arch.sh",
+    "db:install:fedora": "sh scripts/setup-mariadb-fedora.sh",
+    "db:install:debian": "sh scripts/setup-mariadb-debian.sh",
+    "db:install:auto": "sh scripts/setup-mariadb.sh",
+    "db:setup": "node scripts/db-setup.mjs",
+    "audit:local": "node scripts/local-audit.mjs",
+    "security:check": "node scripts/security-check.mjs",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.9.0",
+    "lucide-react": "^0.468.0",
+    "next": "^15.3.3",
+    "next-auth": "^5.0.0-beta.29",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "eslint": "^9.28.0",
+    "eslint-config-next": "^15.3.3",
+    "postcss": "^8.5.4",
+    "prisma": "^6.9.0",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3"
+  }
+}

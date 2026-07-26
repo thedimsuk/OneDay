@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+.next
+.next-*
+node_modules
+.localdb/
+.deploy/
+.db-backups/
+debug.log
+public/uploads/*
+!public/uploads/.gitkeep
+data/registered-users.json
+client_secret*.json
+.tools/
